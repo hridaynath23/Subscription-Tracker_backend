@@ -1,0 +1,940 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Subscription Tracker & Alert</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #1e293b;
+        }
+
+        header {
+            background: #172554;
+            color: white;
+            padding: 24px 8%;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+            font-size: 27px;
+        }
+
+        header p {
+            margin: 0;
+            color: #cbd5e1;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .welcome {
+            margin-bottom: 25px;
+        }
+
+        .welcome h2 {
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            color: #64748b;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card, .card {
+            background: white;
+            padding: 24px;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px #0000000d;
+        }
+
+        .stat-card p {
+            color: #64748b;
+            margin: 0 0 12px;
+            font-size: 14px;
+        }
+
+        .stat-card h2 {
+            margin: 0;
+            color: #1d4ed8;
+            font-size: 27px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 0.9fr 1.1fr;
+            gap: 22px;
+            align-items: start;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: white;
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus {
+            outline: 2px solid #bfdbfe;
+            border-color: #2563eb;
+        }
+
+        button {
+            border: none;
+            padding: 11px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .primary-button {
+            background: #2563eb;
+            color: white;
+        }
+
+        .primary-button:hover {
+            background: #1d4ed8;
+        }
+
+        .secondary-button {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .secondary-button:hover {
+            background: #cbd5e1;
+        }
+
+        .edit-button {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .edit-button:hover {
+            background: #bfdbfe;
+        }
+
+        .delete-button {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .delete-button:hover {
+            background: #fecaca;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .message {
+            font-size: 14px;
+            margin-top: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .success {
+            color: #15803d;
+        }
+
+        .error {
+            color: #b91c1c;
+        }
+
+        .subscription {
+            padding: 18px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .subscription:first-child {
+            padding-top: 0;
+        }
+
+        .subscription:last-child {
+            border-bottom: none;
+        }
+
+        .subscription-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .subscription h3 {
+            margin: 0 0 7px;
+            overflow-wrap: anywhere;
+        }
+
+        .subscription-price {
+            color: #1d4ed8;
+            font-weight: bold;
+            font-size: 18px;
+            white-space: nowrap;
+        }
+
+        .subscription p {
+            color: #64748b;
+            font-size: 13px;
+            margin: 7px 0;
+            overflow-wrap: anywhere;
+        }
+
+        .status {
+            display: inline-block;
+            border-radius: 20px;
+            padding: 5px 9px;
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status.inactive {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .subscription-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 13px;
+        }
+
+        .empty {
+            color: #64748b;
+            text-align: center;
+            padding: 25px 5px;
+            line-height: 1.6;
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        
+.filter-panel {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.search-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-bottom: 16px;
+}
+
+.search-field input {
+    background: white;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.filter-grid .field {
+    min-width: 0;
+}
+
+.filter-grid select {
+    padding: 10px 8px;
+}
+
+@media (max-width: 600px) {
+    .filter-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+        .list-header h2 {
+            margin: 0;
+        }
+
+        .list-header button {
+            flex-shrink: 0;
+        }
+
+        footer {
+            text-align: center;
+            color: #64748b;
+            font-size: 13px;
+            padding: 25px 15px;
+        }
+
+        @media (max-width: 800px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 22px 20px;
+            }
+
+            header h1 {
+                font-size: 23px;
+            }
+
+            main {
+                margin-top: 25px;
+                padding: 0 12px;
+            }
+
+            .card, .stat-card {
+                padding: 18px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .field.full {
+                grid-column: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Subscription Tracker &amp; Alert</h1>
+    <p>Manage your recurring payments in one place.</p>
+</header>
+
+<main>
+    <section class="welcome">
+        <h2>Welcome to your dashboard!</h2>
+        <p>Track your subscriptions, manage expenses, and keep an eye on upcoming payments.</p>
+    </section>
+
+    <section class="stats">
+        <div class="stat-card">
+            <p>Total Subscriptions</p>
+            <h2 id="totalSubscriptions">0</h2>
+        </div>
+
+        <div class="stat-card">
+            <p>Active Subscriptions</p>
+            <h2 id="activeSubscriptions">0</h2>
+        </div>
+
+        <div class="stat-card">
+            <p>Estimated Monthly Spending</p>
+            <h2 id="monthlyTotal">₹0.00</h2>
+        </div>
+    </section>
+
+    <section class="content-grid">
+        <div class="card">
+            <h2 id="formTitle">Add a Subscription</h2>
+
+            <form id="subscriptionForm">
+                <div class="form-grid">
+
+                    <div class="field full">
+                        <label for="name">Subscription Name *</label>
+                        <input
+                            type="text"
+                            id="name"
+                            placeholder="e.g. Netflix"
+                            maxlength="100"
+                            required
+                        >
+                    </div>
+
+                    <div class="field">
+                        <label for="price">Price (₹) *</label>
+                        <input
+                            type="number"
+                            id="price"
+                            min="0.01"
+                            max="99999999"
+                            step="0.01"
+                            placeholder="e.g. 199"
+                            required
+                        >
+                    </div>
+
+                    <div class="field">
+                        <label for="category">Category *</label>
+                        <select id="category" required>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Music">Music</option>
+                            <option value="Education">Education</option>
+                            <option value="Software">Software</option>
+                            <option value="Gaming">Gaming</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="billingCycle">Billing Cycle *</label>
+                        <select id="billingCycle" required>
+                            <option value="MONTHLY">Monthly</option>
+                            <option value="YEARLY">Yearly</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="nextPaymentDate">Next Payment Date *</label>
+                        <input type="date" id="nextPaymentDate" required>
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="primary-button" id="submitButton">
+                        Add Subscription
+                    </button>
+
+                    <button
+                        type="button"
+                        class="secondary-button"
+                        id="cancelEditButton"
+                        hidden
+                    >
+                        Cancel
+                    </button>
+                </div>
+
+                <p id="formMessage" class="message" role="status" aria-live="polite"></p>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="list-header">
+                <h2>Your Subscriptions</h2>
+                <button type="button" class="secondary-button" id="refreshButton">
+                    Refresh
+                </button>
+            </div>
+
+            
+<div class="filter-panel">
+    <div class="search-field">
+        <label for="searchInput">Search subscriptions</label>
+        <input
+            type="search"
+            id="searchInput"
+            placeholder="Search by subscription name..."
+        >
+    </div>
+
+    <div class="filter-grid">
+        <div class="field">
+            <label for="categoryFilter">Category</label>
+            <select id="categoryFilter">
+                <option value="ALL">All Categories</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Music">Music</option>
+                <option value="Education">Education</option>
+                <option value="Software">Software</option>
+                <option value="Gaming">Gaming</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label for="billingFilter">Billing Cycle</label>
+            <select id="billingFilter">
+                <option value="ALL">All Billing Cycles</option>
+                <option value="MONTHLY">Monthly</option>
+                <option value="YEARLY">Yearly</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label for="statusFilter">Status</label>
+            <select id="statusFilter">
+                <option value="ALL">All Statuses</option>
+                <option value="ACTIVE">Active</option>
+                <option value="INACTIVE">Inactive</option>
+            </select>
+        </div>
+    </div>
+
+    <button type="button" id="clearFiltersButton" class="secondary-button">
+        Clear Filters
+    </button>
+</div>
+```
+
+<CodeBlock language="css" editable>
+
+
+            <div id="subscriptionList">
+                <p class="empty">Loading subscriptions...</p>
+            </div>
+
+            <p id="listMessage" class="message" role="status" aria-live="polite"></p>
+        </div>
+    </section>
+</main>
+
+<footer>
+    Subscription Tracker &amp; Alert · Built with Java, Spring Boot and MySQL
+</footer>
+
+<script>
+    const API_URL = "/api/subscriptions";
+
+    const form = document.getElementById("subscriptionForm");
+    const formTitle = document.getElementById("formTitle");
+    const formMessage = document.getElementById("formMessage");
+    const listMessage = document.getElementById("listMessage");
+    const submitButton = document.getElementById("submitButton");
+    const cancelEditButton = document.getElementById("cancelEditButton");
+    const subscriptionList = document.getElementById("subscriptionList");
+
+    let editingId = null;
+    let subscriptionsCache = [];
+
+    function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>"']/g, character => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+        })[character]);
+    }
+
+    function formatPrice(value) {
+        return Number(value).toLocaleString("en-IN", {
+            style: "currency",
+            currency: "INR"
+        });
+    }
+
+    function showMessage(element, message, type = "") {
+        element.textContent = message;
+        element.className = "message " + type;
+    }
+
+    function resetForm() {
+        form.reset();
+        editingId = null;
+        formTitle.textContent = "Add a Subscription";
+        submitButton.textContent = "Add Subscription";
+        cancelEditButton.hidden = true;
+        showMessage(formMessage, "");
+    }
+
+    async function loadSubscriptions() {
+        subscriptionList.innerHTML =
+            '<p class="empty">Loading subscriptions...</p>';
+        showMessage(listMessage, "");
+
+        try {
+            const response = await fetch(API_URL);
+
+            if (!response.ok) {
+                throw new Error("Unable to retrieve subscriptions.");
+            }
+
+            subscriptionsCache = await response.json();
+            renderSubscriptions();
+
+        } catch (error) {
+            subscriptionList.innerHTML =
+                '<p class="empty">Could not load subscriptions.</p>';
+
+            showMessage(
+                listMessage,
+                "Check that Spring Boot is running on port 8081. " + error.message,
+                "error"
+            );
+        }
+    }
+
+    
+function renderSubscriptions() {
+    subscriptionList.innerHTML = "";
+
+    const searchText = document
+        .getElementById("searchInput")
+        .value.trim()
+        .toLowerCase();
+
+    const categoryValue =
+        document.getElementById("categoryFilter").value;
+
+    const billingValue =
+        document.getElementById("billingFilter").value;
+
+    const statusValue =
+        document.getElementById("statusFilter").value;
+
+    // Apply search and filters
+    const filteredSubscriptions = subscriptionsCache.filter(subscription => {
+        const name = String(subscription.name || "").toLowerCase();
+        const category = String(subscription.category || "Other");
+        const billing = String(subscription.billingCycle || "").toUpperCase();
+        const isActive = subscription.active !== false;
+
+        const matchesSearch = name.includes(searchText);
+
+        const matchesCategory =
+            categoryValue === "ALL" || category === categoryValue;
+
+        const matchesBilling =
+            billingValue === "ALL" || billing === billingValue;
+
+        const matchesStatus =
+            statusValue === "ALL" ||
+            (statusValue === "ACTIVE" && isActive) ||
+            (statusValue === "INACTIVE" && !isActive);
+
+        return matchesSearch &&
+            matchesCategory &&
+            matchesBilling &&
+            matchesStatus;
+    });
+
+    // Dashboard totals always reflect all subscriptions, not just filtered ones
+    const activeCount = subscriptionsCache.filter(
+        subscription => subscription.active !== false
+    ).length;
+
+    let monthlySpending = 0;
+
+    subscriptionsCache.forEach(subscription => {
+        if (subscription.active === false) return;
+
+        const price = Number(subscription.price) || 0;
+        const cycle = String(subscription.billingCycle || "").toUpperCase();
+
+        monthlySpending += cycle === "YEARLY" ? price / 12 : price;
+    });
+
+    document.getElementById("totalSubscriptions").textContent =
+        subscriptionsCache.length;
+
+    document.getElementById("activeSubscriptions").textContent =
+        activeCount;
+
+    document.getElementById("monthlyTotal").textContent =
+        formatPrice(monthlySpending);
+
+    // Show the filtered results
+    if (filteredSubscriptions.length === 0) {
+        subscriptionList.innerHTML = `
+            <p class="empty">
+                No matching subscriptions found.<br>
+                Try changing your search or filters.
+            </p>
+        `;
+        return;
+    }
+
+    filteredSubscriptions.forEach(subscription => {
+        const item = document.createElement("article");
+        item.className = "subscription";
+
+        const isActive = subscription.active !== false;
+        const cycle = String(subscription.billingCycle || "").toUpperCase();
+        const readableCycle = cycle === "YEARLY" ? "Yearly" : "Monthly";
+
+        item.innerHTML = `
+            <div class="subscription-top">
+                <div>
+                    <h3>${escapeHtml(subscription.name)}</h3>
+                    <span class="status ${isActive ? "" : "inactive"}">
+                        ${isActive ? "Active" : "Inactive"}
+                    </span>
+                </div>
+
+                <div class="subscription-price">
+                    ${formatPrice(subscription.price)}
+                </div>
+            </div>
+
+            <p>Category: ${escapeHtml(subscription.category || "Other")}</p>
+            <p>Billing cycle: ${readableCycle}</p>
+            <p>Next payment: ${escapeHtml(subscription.nextPaymentDate || "Not set")}</p>
+
+            <div class="subscription-actions">
+                <button type="button"
+                    class="edit-button"
+                    data-action="edit"
+                    data-id="${Number(subscription.id)}">
+                    Edit
+                </button>
+
+                <button type="button"
+                    class="delete-button"
+                    data-action="delete"
+                    data-id="${Number(subscription.id)}">
+                    Delete
+                </button>
+            </div>
+        `;
+
+        subscriptionList.appendChild(item);
+    });
+}
+
+
+    form.addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const name = document.getElementById("name").value.trim();
+        const price = Number(document.getElementById("price").value);
+        const category = document.getElementById("category").value;
+        const billingCycle = document.getElementById("billingCycle").value;
+        const nextPaymentDate =
+            document.getElementById("nextPaymentDate").value;
+
+        if (!name || !Number.isFinite(price) || price <= 0 || !nextPaymentDate) {
+            showMessage(formMessage, "Please enter valid subscription details.", "error");
+            return;
+        }
+
+        const subscription = {
+            name,
+            price,
+            category,
+            billingCycle,
+            nextPaymentDate,
+            active: true
+        };
+
+        const isEditing = editingId !== null;
+        const url = isEditing ? `${API_URL}/${editingId}` : API_URL;
+        const method = isEditing ? "PUT" : "POST";
+
+        submitButton.disabled = true;
+        submitButton.textContent = isEditing ? "Updating..." : "Saving...";
+        showMessage(formMessage, "");
+
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(subscription)
+            });
+
+            if (!response.ok) {
+                const details = await response.text();
+                throw new Error(details || "Could not save subscription.");
+            }
+
+            resetForm();
+
+            showMessage(
+                formMessage,
+                isEditing
+                    ? "Subscription updated successfully!"
+                    : "Subscription added successfully!",
+                "success"
+            );
+
+            await loadSubscriptions();
+
+        } catch (error) {
+            showMessage(formMessage, "Error: " + error.message, "error");
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent =
+                editingId !== null ? "Update Subscription" : "Add Subscription";
+        }
+    });
+
+    function startEditing(id) {
+        const subscription = subscriptionsCache.find(
+            item => Number(item.id) === id
+        );
+
+        if (!subscription) {
+            showMessage(listMessage, "Subscription not found.", "error");
+            return;
+        }
+
+        editingId = id;
+
+        document.getElementById("name").value = subscription.name || "";
+        document.getElementById("price").value = subscription.price;
+        document.getElementById("category").value =
+            subscription.category || "Other";
+        document.getElementById("billingCycle").value =
+            String(subscription.billingCycle || "MONTHLY").toUpperCase();
+        document.getElementById("nextPaymentDate").value =
+            subscription.nextPaymentDate || "";
+
+        formTitle.textContent = "Edit Subscription";
+        submitButton.textContent = "Update Subscription";
+        cancelEditButton.hidden = false;
+
+        showMessage(formMessage, "Edit the details and click Update Subscription.");
+        document.getElementById("name").focus();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    async function deleteSubscription(id) {
+        const subscription = subscriptionsCache.find(
+            item => Number(item.id) === id
+        );
+
+        if (!subscription) return;
+
+        const confirmed = confirm(
+            `Are you sure you want to delete "${subscription.name}"? This cannot be undone.`
+        );
+
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch(`${API_URL}/${id}`, {
+                method: "DELETE"
+            });
+
+            if (!response.ok) {
+                const details = await response.text();
+                throw new Error(details || "Could not delete subscription.");
+            }
+
+            if (editingId === id) {
+                resetForm();
+            }
+
+            showMessage(listMessage, "Subscription deleted successfully!", "success");
+            await loadSubscriptions();
+
+        } catch (error) {
+            showMessage(listMessage, "Error: " + error.message, "error");
+        }
+    }
+
+    subscriptionList.addEventListener("click", function(event) {
+        const button = event.target.closest("button[data-action]");
+
+        if (!button) return;
+
+        const id = Number(button.dataset.id);
+
+        if (!Number.isSafeInteger(id) || id <= 0) return;
+
+        if (button.dataset.action === "edit") {
+            startEditing(id);
+        } else if (button.dataset.action === "delete") {
+            deleteSubscription(id);
+        }
+    });
+
+    cancelEditButton.addEventListener("click", resetForm);
+    document.getElementById("refreshButton").addEventListener(
+        "click",
+        loadSubscriptions
+    );
+    
+document.getElementById("searchInput").addEventListener(
+    "input",
+    renderSubscriptions
+);
+
+document.getElementById("categoryFilter").addEventListener(
+    "change",
+    renderSubscriptions
+);
+
+document.getElementById("billingFilter").addEventListener(
+    "change",
+    renderSubscriptions
+);
+
+document.getElementById("statusFilter").addEventListener(
+    "change",
+    renderSubscriptions
+);
+
+document.getElementById("clearFiltersButton").addEventListener("click", () => {
+    document.getElementById("searchInput").value = "";
+    document.getElementById("categoryFilter").value = "ALL";
+    document.getElementById("billingFilter").value = "ALL";
+    document.getElementById("statusFilter").value = "ALL";
+
+    renderSubscriptions();
+});
+
+
+    loadSubscriptions();
+</script>
+
+</body>
+</html>
